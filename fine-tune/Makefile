@@ -6,6 +6,9 @@ instruction-dataset:
 fine-tune:
 	uv run modal run -m src.fine_tune.main --model-name unsloth/LFM2-350M --invalidate-dataset-cache
 
+evaluate:
+	uv run modal run -m src.fine_tune.evaluate --model-checkpoint LFM2-350M-r16-20250901-135855/checkpoint-9000
+
 merged-model:
 	uv run python scripts/generate_merged_model.py \
 		--modal-volume-name model_checkpoints \

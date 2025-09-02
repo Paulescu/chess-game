@@ -241,3 +241,6 @@ kubeconfig
 
 **/model-bundles
 **/merged-models
+
+LeapChatApp/
+**.bundle

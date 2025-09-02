@@ -60,6 +60,37 @@ def get_docker_image() -> modal.Image:
 
     return docker_image
 
+def get_docker_image_for_evaluation() -> modal.Image:
+    """
+    Returns a Modal Docker image with all the required Python dependencies installed.
+    """
+    docker_image = (
+        modal.Image.debian_slim(python_version="3.11")
+        .uv_pip_install(
+            "datasets==3.6.0",
+            "hf-transfer==0.1.9",
+            "huggingface_hub==0.34.2",
+            "peft==0.16.0",
+            "transformers==4.54.0",
+            "wandb==0.21.0",
+            "torch==2.7.0",
+            "pydantic-settings==2.10.1",
+            "chess==1.11.2",
+        )
+        # .add_local_python_source(".")
+        .env({"HF_HOME": "/model_cache"})
+    )
+
+    with docker_image.imports():
+        # unsloth must be first!
+        import datasets
+        import torch
+        import wandb
+        from transformers import TrainingArguments
+
+    return docker_image
+
+
 def get_volume(name: str) -> modal.Volume:
     """
     Returns a Modal volume object for the given name.
