@@ -5,6 +5,7 @@ from .players import Player
 class ChessGameStats(BaseModel):
     result: str
     n_moves: int
+    moves: list[str]
 
 class ChessGame:
 
@@ -35,10 +36,23 @@ class ChessGame:
 
             # Ask the player for its next move, until we get a valid move
             next_move = ""
+            n_attempts = 0
             while not self._is_valid_move(next_move):
-                self._log(f"Next move {next_move} by {player.name} is not valid...")
+                # self._log(f"Next move {next_move} by {player.name} is not valid at [Game at {len(self.previous_moves)}]")
                 # Ask player for its next move
                 next_move = player.get_next_move(self.previous_moves)
+
+                n_attempts += 1
+                if (n_attempts > 2) and ('LLMPlayer' in player.name):
+
+                    print(f"Player {player.name} failed to provide a valid move after {n_attempts} attempts. Last move was: {next_move}")
+                    
+                    return ChessGameStats(
+                        result="aborted",
+                        n_moves=len(self.previous_moves),
+                        moves=self.previous_moves,
+                    )
+                
 
             self._log(f'Applying move {next_move}')
 
@@ -47,11 +61,12 @@ class ChessGame:
 
         # The game is over
         self._log("Game over!")
-        result = self.get_result()
+        result = self._get_result()
 
         return ChessGameStats(
             result=result,
-            n_moves=len(self.previous_moves)
+            n_moves=len(self.previous_moves),
+            moves=self.previous_moves,
         )
 
     def _get_result(self) -> bool:
@@ -74,7 +89,7 @@ class ChessGame:
         self.previous_moves.append(move)
         self.white_plays = not self.white_plays
 
-        print('moves so far: ', self.previous_moves)
+        # print('moves so far: ', self.previous_moves)
 
     def _get_player(self) -> Player:
         """

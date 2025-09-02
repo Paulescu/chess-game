@@ -245,3 +245,4 @@ kubeconfig
 LeapChatApp/
 **.bundle
 modal-examples/
+*.pgn

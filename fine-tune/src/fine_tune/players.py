@@ -6,7 +6,9 @@ from abc import ABC, abstractmethod
 from peft import PeftModel, PeftConfig
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
+import chess
 
+from .prompt_template import get_prompt
 
 class Player(ABC):
     """
@@ -24,6 +26,41 @@ class Player(ABC):
             The next move in algebraic notation (e.g., 'e2e4', 'f8c8')
         """
         pass
+    
+    def _get_board(self, previous_moves: list[str]) -> chess.Board:
+        """
+        Get the current game state in FEN notation based on previous UCI moves.
+        
+        Args:
+            previous_moves: List of moves in UCI notation (e.g., ['e2e4', 'e7e5'])
+            
+        Returns:
+            board
+        """
+        board = chess.Board()
+        
+        for move_uci in previous_moves:
+            try:
+                move = chess.Move.from_uci(move_uci)
+                if move in board.legal_moves:
+                    board.push(move)
+                else:
+                    raise ValueError(f"Illegal move: {move_uci}")
+            except (chess.InvalidMoveError, ValueError) as e:
+                raise ValueError(f"Invalid move in sequence: {move_uci}") from e
+        
+        return board
+
+    def _get_game_state(self, previous_moves: list[str]) -> str:
+        board = self._get_board(previous_moves)
+        return board.fen()
+
+    def _get_last_5_moves(self, previous_moves: list[str]) -> list[str]:
+        return previous_moves[-5:]
+
+    def _get_valid_moves(self, previous_moves: list[str]) -> list[str]:
+        board = self._get_board(previous_moves)
+        return [str(move) for move in board.legal_moves]
 
 
 class LLMPlayer(Player):
@@ -34,27 +71,32 @@ class LLMPlayer(Player):
     def __init__(
         self,
         model_checkpoint_path: Path,
-        # model: PeftModel,
-        # tokenizer: AutoTokenizer,
     ):
         print(f"🤖 Initializing LLMPlayer from {model_checkpoint_path}")
 
-        # self.model = model # = model.eval()
-        # self.tokenizer = tokenizer
+        # Load the model and tokenizer
         self.model, self.tokenizer = self._load_model_and_tokenizer(
             model_checkpoint_path=model_checkpoint_path
         )
         print("🤖 LLMPlayer was successfully initialized!")
 
         self.name = f"LLMPlayer-from-{model_checkpoint_path}"
+        # self.name = 'LLMPlayer'
 
     def get_next_move(self, previous_moves: list[str]) -> str:
         """
         Get the next move for the player based on previous moves.
         """
-        # Prepare the `user` message
-        moves = json.dumps({'moves': previous_moves})
-        message = [{'role': 'user', 'content': moves}]
+        game_state = self._get_game_state(previous_moves)
+        last_5_moves_uci = self._get_last_5_moves(previous_moves)
+        valid_moves = self._get_valid_moves(previous_moves)
+
+        prompt = get_prompt(
+            game_state=game_state,
+            last_5_moves_uci=last_5_moves_uci,
+            valid_moves=valid_moves
+        )
+        message = [{'role': 'user', 'content': prompt}]
         
         input_ids = self.tokenizer.apply_chat_template(
             message,
@@ -69,7 +111,7 @@ class LLMPlayer(Player):
         output = self.model.generate(
             input_ids,
             do_sample=True,
-            temperature=0.8,
+            temperature=0.90,
             min_p=0.15,
             repetition_penalty=1.05,
             max_new_tokens=512,
@@ -82,9 +124,6 @@ class LLMPlayer(Player):
         # output = self.tokenizer.decode(output[0], skip_special_tokens=False)
 
         return output
-
-    # def name(self) -> str:
-    #     return f"LLMPlayer-from-{self.model_checkpoint_path}"
 
     @staticmethod
     def _load_model_and_tokenizer(
@@ -130,10 +169,7 @@ class RandomPlayer(Player):
         """
         Generate a random algebraic chess move.
         """
-        files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
-        ranks = ['1', '2', '3', '4', '5', '6', '7', '8']
+        valid_moves = self._get_valid_moves(previous_moves)
         
-        from_square = random.choice(files) + random.choice(ranks)
-        to_square = random.choice(files) + random.choice(ranks)
-        
-        return from_square + to_square
+        # sample 1 random move
+        return random.choice(valid_moves)

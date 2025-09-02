@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import Optional
+from pathlib import Path
 
 from pydantic_settings import BaseSettings
 from pydantic import model_validator
@@ -13,14 +14,16 @@ class TrainingJobConfig(BaseSettings):
     load_in_8bit: bool = False  # unsloth: use 8bit quant for frozen model weights
 
     # Dataset configuration
-    dataset_name: str = "Paulescu/ChessInstruct"
+    dataset_name: str = "Paulescu/MagnusInstruct"
+    dataset_samples: int = 10000
     dataset_input_column: str = "input"
-    dataset_output_colum: str = "next_best_move"
+    dataset_output_colum: str = "next_move"
     train_split_ratio: float = 0.9
     preprocessing_workers: int = 2
     dataset_conversations_field: str = "conversations"
     dataset_text_field: str = "text"
     invalidate_dataset_cache: bool = False
+    # prompt_template_file: Path = Path(__file__).parent / "templates" / "chess_prompt.jinja2"
     
     # LoRA-specific hyperparameters
     lora_r: int = 16

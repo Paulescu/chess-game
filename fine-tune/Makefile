@@ -1,27 +1,48 @@
-.PHONY: lint fix
+.PHONY: download-magnus-games
+
+download-magnus-games:
+	curl -L -o data/raw/Carlsen.zip https://www.pgnmentor.com/players/Carlsen.zip
+	cd data/raw && unzip -o Carlsen.zip
+	rm data/raw/Carlsen.zip
 
 instruction-dataset:
-	uv run python scripts/instruction_dataset_generation.py
+	uv run python scripts/generate_instruction_dataset.py \
+		--hugging-face-dataset-name Paulescu/MagnusInstruct
+
+#############
+BASE_MODEL = unsloth/LFM2-700M
+#############
 
 fine-tune:
-	uv run modal run -m src.fine_tune.main --model-name unsloth/LFM2-350M --invalidate-dataset-cache
+	uv run modal run -m src.fine_tune.main --model-name $(BASE_MODEL) --invalidate-dataset-cache
+
+#############
+CHECKPOINT := LFM2-350M-r16-20250902-232247/checkpoint-5000
+#############
 
 evaluate:
-	uv run modal run -m src.fine_tune.evaluate --model-checkpoint LFM2-350M-r16-20250901-135855/checkpoint-9000
+	uv run modal run -m src.fine_tune.evaluate --model-checkpoint $(CHECKPOINT)
 
-merged-model:
+merge-model:
 	uv run python scripts/generate_merged_model.py \
 		--modal-volume-name model_checkpoints \
-		--remote-checkpoint-dir $(or $(CHECKPOINT),LFM2-350M-r16-20250901-135855/checkpoint-9000) \
+		--remote-checkpoint-dir $(CHECKPOINT) \
 		--local-merged-models-dir ./merged-models
 
-model-bundle:
+bundle-model: merge-model
 	mkdir -p merged-models && cd merged-models && \
-	uv run leap-bundle create $(or $(CHECKPOINT),LFM2-350M-r16-20250901-135855/checkpoint-9000)
+	uv run leap-bundle create $(CHECKPOINT)
+
+list-bundles:
+	uv run leap-bundle list
+
+#############
+BUNDLE_ID = 6
+#############
 
 download-model-bundle:
 	mkdir -p model-bundles && cd model-bundles && \
-	uv run leap-bundle download $(or $(DOWNLOAD_ID),5)
+	uv run leap-bundle download $(BUNDLE_ID)
 
 lint:
 	uv run ruff check .

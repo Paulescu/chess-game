@@ -506,11 +506,13 @@ dependencies = [
     { name = "datasets" },
     { name = "fire" },
     { name = "huggingface-hub" },
+    { name = "jinja2" },
     { name = "leap-bundle" },
     { name = "modal" },
     { name = "peft" },
     { name = "pydantic-settings" },
     { name = "python-chess" },
+    { name = "tqdm" },
     { name = "wandb" },
 ]
 
@@ -525,11 +527,13 @@ requires-dist = [
     { name = "datasets", specifier = ">=4.0.0" },
     { name = "fire", specifier = ">=0.7.1" },
     { name = "huggingface-hub", specifier = ">=0.34.4" },
+    { name = "jinja2", specifier = ">=3.1.6" },
     { name = "leap-bundle", specifier = ">=0.3.0" },
     { name = "modal", specifier = ">=1.1.3" },
     { name = "peft", specifier = ">=0.17.1" },
     { name = "pydantic-settings", specifier = ">=2.10.1" },
     { name = "python-chess", specifier = ">=1.999" },
+    { name = "tqdm", specifier = ">=4.67.1" },
     { name = "wandb", specifier = ">=0.21.3" },
 ]
 
