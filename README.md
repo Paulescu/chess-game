@@ -39,4 +39,3 @@ to reason like good chess players do, combining long-term strategic play and sho
 
 Because of this, training a reasoning LLMs using next moves and expert human strategy and tactis
 would work better. See [this paper for further reference](https://arxiv.org/html/2411.06655v2).
-
