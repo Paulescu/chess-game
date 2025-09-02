@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		CB9AF5E32E66E1D700BA0A7C /* LeapModelDownloader in Frameworks */ = {isa = PBXBuildFile; productRef = CB9AF5E22E66E1D700BA0A7C /* LeapModelDownloader */; };
+		CB9AF5E52E66E1D700BA0A7C /* LeapSDK in Frameworks */ = {isa = PBXBuildFile; productRef = CB9AF5E42E66E1D700BA0A7C /* LeapSDK */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		CB9AF5C22E66DFC000BA0A7C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +57,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CB9AF5E32E66E1D700BA0A7C /* LeapModelDownloader in Frameworks */,
+				CB9AF5E52E66E1D700BA0A7C /* LeapSDK in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +119,8 @@
 			);
 			name = LeapChatApp;
 			packageProductDependencies = (
+				CB9AF5E22E66E1D700BA0A7C /* LeapModelDownloader */,
+				CB9AF5E42E66E1D700BA0A7C /* LeapSDK */,
 			);
 			productName = LeapChatApp;
 			productReference = CB9AF5B42E66DFBE00BA0A7C /* LeapChatApp.app */;
@@ -195,6 +204,9 @@
 			);
 			mainGroup = CB9AF5AB2E66DFBE00BA0A7C;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				CB9AF5E12E66E1D700BA0A7C /* XCRemoteSwiftPackageReference "leap-ios" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = CB9AF5B52E66DFBE00BA0A7C /* Products */;
 			projectDirPath = "";
@@ -550,6 +562,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		CB9AF5E12E66E1D700BA0A7C /* XCRemoteSwiftPackageReference "leap-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Liquid4All/leap-ios.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		CB9AF5E22E66E1D700BA0A7C /* LeapModelDownloader */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CB9AF5E12E66E1D700BA0A7C /* XCRemoteSwiftPackageReference "leap-ios" */;
+			productName = LeapModelDownloader;
+		};
+		CB9AF5E42E66E1D700BA0A7C /* LeapSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CB9AF5E12E66E1D700BA0A7C /* XCRemoteSwiftPackageReference "leap-ios" */;
+			productName = LeapSDK;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = CB9AF5AC2E66DFBE00BA0A7C /* Project object */;
 }

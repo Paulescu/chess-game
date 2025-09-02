@@ -6,12 +6,18 @@
 //
 
 import SwiftUI
+import LeapSDK
+import Observation
 
 @main
-struct LeapChatAppApp: App {
+struct LeapChatApp: App {
+//    @State private var chatStore = ChatStore()
+    @State private var chatStore = ChatStore()
+ 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(chatStore: chatStore)
+//                .environment(chatStore)
         }
     }
 }
