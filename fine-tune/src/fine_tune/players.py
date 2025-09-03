@@ -111,7 +111,7 @@ class LLMPlayer(Player):
         output = self.model.generate(
             input_ids,
             do_sample=True,
-            temperature=0.90,
+            temperature=0.80,
             min_p=0.15,
             repetition_penalty=1.05,
             max_new_tokens=512,

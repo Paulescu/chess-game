@@ -1,0 +1,42 @@
+{
+  "originHash" : "06c034028292f486702d20d9cc6d47eb9bb009ef53a793278ee40293cb783539",
+  "pins" : [
+    {
+      "identity" : "chessboardkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/rohanrhu/ChessboardKit.git",
+      "state" : {
+        "revision" : "c203bf46ea16fb299d8978739a09e4c4f6ec4ed8",
+        "version" : "1.0.2"
+      }
+    },
+    {
+      "identity" : "chesskit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/aperechnev/ChessKit",
+      "state" : {
+        "revision" : "220b4b0a9561abd2bd904446d8429a3ca239c0ef",
+        "version" : "1.3.7"
+      }
+    },
+    {
+      "identity" : "leap-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Liquid4All/leap-ios.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "9602deec5f5afaf891fd360496b8bcd525b69ef6"
+      }
+    },
+    {
+      "identity" : "swift-syntax",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/swiftlang/swift-syntax.git",
+      "state" : {
+        "revision" : "0687f71944021d616d34d922343dcef086855920",
+        "version" : "600.0.1"
+      }
+    }
+  ],
+  "version" : 3
+}

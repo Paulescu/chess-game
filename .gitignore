@@ -243,6 +243,17 @@ kubeconfig
 **/merged-models
 
 LeapChatApp/
-**.bundle
+*.bundle
 modal-examples/
 *.pgn
+
+# Xcode user data
+**/xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+
+# Build artifacts
+DerivedData/
+build/
+*.ipa
+*.dSYM.zip

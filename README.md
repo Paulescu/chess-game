@@ -10,9 +10,9 @@ The steps to create this project are:
 
 1. Download raw data with Magnus 7k games
 2. Generate instruction dataset (and validate it!)
-3. Fine-tune LFM2-350M to imitate Magnus.
-4. Evaluate the AI player we just created (spoiler alert: it sucks! more on this below)
-5. Generate the fine-tuned model bundle with `leap-bundle`
+3. Fine-tune LFM2-350M to imitate Magnus (aka LFM2-350M-MagnusInstruct)
+4. Evaluate the model by playing against it
+5. Bundle the model with `leap-bundle`
 6. Create a simple iOS game and embed our fine-tuned LLM using the `LeapSDK` for iOS.
 
 Steps 1 to 5 are implemented inside the `fine-tune` directory.
@@ -39,3 +39,27 @@ to reason like good chess players do, combining long-term strategic play and sho
 
 Because of this, training a reasoning LLMs using next moves and expert human strategy and tactis
 would work better. See [this paper for further reference](https://arxiv.org/html/2411.06655v2).
+
+## 2. Generate instruction dataset
+
+## 3. Fine-tune LFM2-350M to imitate Magnus
+
+## 4. Evaluate the AI player we just created (spoiler alert: it sucks! more on this below)
+
+## 5. Bundle the model with the instruction dataset
+
+## 6. Create iOS app with LFM2-350M-MagnusInstruct
+
+First I decided to bootstrap a minimal chat app that loads the model and allows you to chat with it.
+For that I used the `LeapChatExample` from the `LeapSDK-Examples` repository.
+You can find it [here](https://leap.liquid.ai/docs/edge-sdk/ios/ios-quick-start-guide#complete-example)
+
+### Steps to create the app
+
+- Create a new project with xcode.
+- Create a `Resources` folder and add the model bundle `LFM2-350M-MagnusInstruct.bundle`.
+- Add the `LeapSDK` package to the project as explained [here](LFM2-350M-MagnusInstruct).
+
+
+ChessboardKit for a nice UI:
+https://github.com/rohanrhu/ChessboardKit/tree/main?tab=readme-ov-file#quick-start
