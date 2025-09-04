@@ -44,8 +44,12 @@ download-model-bundle:
 	mkdir -p model-bundles && cd model-bundles && \
 	uv run leap-bundle download $(BUNDLE_ID)
 
+
 lint:
 	uv run ruff check .
 
-fix:
+lint-fix:
 	uv run ruff check --fix .
+
+format:
+	uv run ruff format .

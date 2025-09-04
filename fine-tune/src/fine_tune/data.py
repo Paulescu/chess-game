@@ -1,12 +1,13 @@
 from pathlib import Path
 
 import datasets
-from datasets import Dataset
 import modal
-# from transformers import AutoTokenizer
 
-from .prompt_template import get_prompt
 from .config import TrainingJobConfig
+
+# from transformers import AutoTokenizer
+from .prompt_template import get_prompt
+
 
 def prepare_datasets(
     config: TrainingJobConfig,
@@ -20,7 +21,7 @@ def prepare_datasets(
     dataset_cache_path = _get_path_to_cached_datasets(
         dataset_name=config.dataset_name,
         train_split_ratio=config.train_split_ratio,
-        seed=config.seed
+        seed=config.seed,
     )
 
     if dataset_cache_path.exists() and not config.invalidate_dataset_cache:
@@ -38,17 +39,18 @@ def prepare_datasets(
             dataset = dataset.select(range(config.dataset_samples))
             print(f"Selected {config.dataset_samples} samples for training.")
 
-        print('Converting instructions to conversation format...')
+        print("Converting instructions to conversation format...")
         # dataset = dataset.map(_convert_to_openai_conversation_format)
-        # dataset = convert_dataset_to_conversation_format(dataset, config.prompt_template_file)
+        # dataset = convert_dataset_to_conversation_format(
+        #   dataset, config.prompt_template_file)
         dataset = dataset.map(convert_to_conversation_format)
 
-        print('Sample conversations before applying chat templates:')
+        print("Sample conversations before applying chat templates:")
         for i in range(5):
             print(f"Sample {i}: {dataset[i]['conversations']}")
-            print('--------')
+            print("--------")
 
-        print('Applying chat templates to conversations...')
+        print("Applying chat templates to conversations...")
         dataset = dataset.map(
             lambda examples: apply_chat_template(examples, tokenizer),
             batched=True,
@@ -56,12 +58,12 @@ def prepare_datasets(
             remove_columns=dataset.column_names,
         )
 
-        print('Sample conversations after applying chat templates:')
+        print("Sample conversations after applying chat templates:")
         for i in range(5):
             print(f"Sample {i}: {dataset[i]['text']}")
-            print('--------')
+            print("--------")
 
-        print('Splitting dataset into train and eval sets...')
+        print("Splitting dataset into train and eval sets...")
         dataset = dataset.train_test_split(
             test_size=1.0 - config.train_split_ratio, seed=config.seed
         )
@@ -72,18 +74,19 @@ def prepare_datasets(
         dataset_cache_path.mkdir(parents=True, exist_ok=True)
         train_dataset.save_to_disk(dataset_cache_path / "train")
         eval_dataset.save_to_disk(dataset_cache_path / "eval")
-            
+
         print(f"Commiting write operation to {datasets_volume}")
         datasets_volume.commit()
         print(f"Commited write operation to {datasets_volume}")
 
     print("Printing 5 first samples from the training dataset...")
     for i in range(5):
-        print('Sample ', i)
-        print(train_dataset[i]['text'])
-        print('--------')
+        print("Sample ", i)
+        print(train_dataset[i]["text"])
+        print("--------")
 
     return train_dataset, eval_dataset
+
 
 def _get_path_to_cached_datasets(
     dataset_name: str,
@@ -94,13 +97,13 @@ def _get_path_to_cached_datasets(
     Returns path to the cached dataset in a Modal volume.
     """
     return (
-        Path("/datasets") /
-        dataset_name.replace("/", "--") /
-        f"train-{train_split_ratio}-seed-{seed}"
+        Path("/datasets")
+        / dataset_name.replace("/", "--")
+        / f"train-{train_split_ratio}-seed-{seed}"
     )
 
-def convert_to_conversation_format(example: dict) -> dict:
 
+def convert_to_conversation_format(example: dict) -> dict:
     # data = {
     #     'player_to_move': example["player_to_move"],
     #     'game_state': example["game_state"],
@@ -111,7 +114,7 @@ def convert_to_conversation_format(example: dict) -> dict:
         # player_to_move=example["player_to_move"],
         game_state=example["game_state"],
         last_5_moves_uci=example["last_5_moves_uci"],
-        valid_moves=example["valid_moves"]
+        valid_moves=example["valid_moves"],
     )
 
     return {
@@ -120,7 +123,8 @@ def convert_to_conversation_format(example: dict) -> dict:
             {"role": "assistant", "content": example["next_move"]},
         ]
     }
-    
+
+
 def apply_chat_template(examples, tokenizer):
     texts = []
     for conversation in examples["conversations"]:

@@ -1,15 +1,13 @@
 from datetime import datetime
-from typing import Optional
-from pathlib import Path
 
-from pydantic_settings import BaseSettings
 from pydantic import model_validator
+from pydantic_settings import BaseSettings
+
 
 class TrainingJobConfig(BaseSettings):
-
     # Model configuration
     model_name: str = "LiquidAI/LFM2-350M"
-    max_seq_length: int = 2048 #32768
+    max_seq_length: int = 2048  # 32768
     load_in_4bit: bool = False  # unsloth: use 4bit quant for frozen model weights
     load_in_8bit: bool = False  # unsloth: use 8bit quant for frozen model weights
 
@@ -23,8 +21,7 @@ class TrainingJobConfig(BaseSettings):
     dataset_conversations_field: str = "conversations"
     dataset_text_field: str = "text"
     invalidate_dataset_cache: bool = False
-    # prompt_template_file: Path = Path(__file__).parent / "templates" / "chess_prompt.jinja2"
-    
+
     # LoRA-specific hyperparameters
     lora_r: int = 16
     lora_alpha: int = 32
@@ -40,13 +37,15 @@ class TrainingJobConfig(BaseSettings):
         "up_proj",
         "down_proj",
     ]
-    
+
     # General training hyperparameters
     optim: str = "adamw_8bit"  # unsloth: 8bit optimizer
     batch_size: int = 16
     gradient_accumulation_steps: int = 1
     packing: bool = False
-    use_gradient_checkpointing: str = "unsloth"  # unsloth: optimized gradient offloading
+    use_gradient_checkpointing: str = (
+        "unsloth"  # unsloth: optimized gradient offloading
+    )
     learning_rate: float = 2e-4
     lr_scheduler_type: str = "cosine"
     warmup_ratio: float = 0.06
@@ -69,12 +68,12 @@ class TrainingJobConfig(BaseSettings):
     # Experiment configuration
     seed: int = 105
     wandb_project_name: str = "finetuning-things"
-    wandb_experiment_name: Optional[str] = None
+    wandb_experiment_name: str | None = None
     wandb_enabled: bool = True
     skip_eval: bool = False
     output_dir: str = "outputs"
-    
-    @model_validator(mode='after')
+
+    @model_validator(mode="after")
     def set_experiment_name(self):
         if self.wandb_experiment_name is None:
             timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -82,12 +81,13 @@ class TrainingJobConfig(BaseSettings):
             self.wandb_experiment_name = f"{model_short}-r{self.lora_r}-{timestamp}"
 
         return self
-    
-    
+
+
 class ModalConfig(BaseSettings):
     """
     Configuration for the Modal app
     """
+
     app_name: str = "finetune-chess-llm"
     pretrained_models_volume: str = "pretrained_models"
     datasets_volume: str = "datasets"
@@ -95,6 +95,7 @@ class ModalConfig(BaseSettings):
     gpu_type: str = "L40S"
     timeout_hours: int = 6
     max_retries: int = 3
+
 
 # training_job_config = TrainingJobConfig()
 # modal_app_config = ModalConfig()

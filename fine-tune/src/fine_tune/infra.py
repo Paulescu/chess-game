@@ -8,17 +8,20 @@ Here we define the infrastructure for our training jobs.
 - Secrets for API keys and credentials
 - Retry policies for failed tasks
 """
+
 import modal
 
 from .config import TrainingJobConfig
 
 config = TrainingJobConfig()
 
+
 def get_modal_app() -> modal.App:
     """
     Returns the Modal application object.
     """
     return modal.App(config.modal_app_name)
+
 
 def get_docker_image() -> modal.Image:
     """
@@ -39,7 +42,6 @@ def get_docker_image() -> modal.Image:
             "wandb==0.21.0",
             "torch==2.7.0",
             "pydantic-settings==2.10.1",
-
             # TODO: not sure if I need this or not
             # "causal-conv1d==1.5.0.post8"
         )
@@ -50,15 +52,9 @@ def get_docker_image() -> modal.Image:
     with docker_image.imports():
         # unsloth must be first!
         import unsloth  # noqa: F401,I001
-        import datasets
-        import torch
-        import wandb
-        from transformers import TrainingArguments
-        from trl import SFTTrainer
-        from unsloth import FastLanguageModel
-        from unsloth.chat_templates import standardize_sharegpt
 
     return docker_image
+
 
 def get_docker_image_for_evaluation() -> modal.Image:
     """
@@ -83,10 +79,7 @@ def get_docker_image_for_evaluation() -> modal.Image:
 
     with docker_image.imports():
         # unsloth must be first!
-        import datasets
-        import torch
-        import wandb
-        from transformers import TrainingArguments
+        pass
 
     return docker_image
 
@@ -97,12 +90,14 @@ def get_volume(name: str) -> modal.Volume:
     """
     return modal.Volume.from_name(name, create_if_missing=True)
 
+
 def get_secrets() -> list[modal.Secret]:
     """
     Returns the Weights & Biases secret.
     """
     wandb_secret = modal.Secret.from_name("wandb-secret")
     return [wandb_secret]
+
 
 def get_retries() -> modal.Retries:
     """

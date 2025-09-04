@@ -1,14 +1,16 @@
 import chess
 from pydantic import BaseModel
+
 from .players import Player
+
 
 class ChessGameStats(BaseModel):
     result: str
     n_moves: int
     moves: list[str]
 
-class ChessGame:
 
+class ChessGame:
     def __init__(
         self,
         white_player: Player,
@@ -20,7 +22,7 @@ class ChessGame:
         self.previous_moves = []
         self.white_plays: bool = True
         self.board = chess.Board()
-        
+
         self.log_enabled = log_enabled
 
     def play(self) -> ChessGameStats:
@@ -38,23 +40,23 @@ class ChessGame:
             next_move = ""
             n_attempts = 0
             while not self._is_valid_move(next_move):
-                # self._log(f"Next move {next_move} by {player.name} is not valid at [Game at {len(self.previous_moves)}]")
                 # Ask player for its next move
                 next_move = player.get_next_move(self.previous_moves)
 
                 n_attempts += 1
-                if (n_attempts > 2) and ('LLMPlayer' in player.name):
+                if (n_attempts > 2) and ("LLMPlayer" in player.name):
+                    print(
+                        f"Player {player.name} failed to provide a valid move after \
+                            {n_attempts} attempts. Last move was: {next_move}"
+                    )
 
-                    print(f"Player {player.name} failed to provide a valid move after {n_attempts} attempts. Last move was: {next_move}")
-                    
                     return ChessGameStats(
                         result="aborted",
                         n_moves=len(self.previous_moves),
                         moves=self.previous_moves,
                     )
-                
 
-            self._log(f'Applying move {next_move}')
+            self._log(f"Applying move {next_move}")
 
             # Apply the move and update the game state
             self._apply_move(next_move)
@@ -71,13 +73,13 @@ class ChessGame:
 
     def _get_result(self) -> bool:
         return self.board.result()
-    
+
     def _is_game_over(self) -> bool:
         """
         Checks if the game is over (checkmate, stalemate, draw, etc.)
         """
         return self.board.is_game_over()
-    
+
     def _apply_move(self, move: str):
         """
         Adds the move to the game state and switches turns.
@@ -99,22 +101,22 @@ class ChessGame:
             return self.white_player
         else:
             return self.black_player
-        
+
     def _is_valid_move(self, next_move: str) -> bool:
-      """
-      Validate if a chess move is legal given the current game state.
+        """
+        Validate if a chess move is legal given the current game state.
 
-      Args:
-          next_move: The move to validate (e.g., "e2e4")
+        Args:
+            next_move: The move to validate (e.g., "e2e4")
 
-      Returns:
-          True if the move is valid, False otherwise
-      """
-      try:
-          next_move_obj = chess.Move.from_uci(next_move)
-          return next_move_obj in self.board.legal_moves
-      except ValueError:
-          return False
+        Returns:
+            True if the move is valid, False otherwise
+        """
+        try:
+            next_move_obj = chess.Move.from_uci(next_move)
+            return next_move_obj in self.board.legal_moves
+        except ValueError:
+            return False
 
     def _log(self, msg: str):
         if self.log_enabled:

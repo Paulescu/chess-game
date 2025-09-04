@@ -1,32 +1,33 @@
-import argparse
-import pathlib
 import wandb
-# from transformers import AutoTokenizer
 
+# from transformers import AutoTokenizer
 from .config import TrainingJobConfig
 from .data import prepare_datasets
-from .model import prepare_model
-from .trainer import prepare_trainer
-
 from .infra import (
-    get_modal_app,
     get_docker_image,
-    get_volume,
+    get_modal_app,
     get_retries,
     get_secrets,
+    get_volume,
 )
+from .model import prepare_model
+from .trainer import prepare_trainer
 
 config = TrainingJobConfig()
 
 modal_app = get_modal_app()
 
-# Modal volumes used for caching processed datasets and base LLMs and to store model checkpoints
+docker_image = get_docker_image()
+
+# Modal volumes used for caching processed datasets and base LLMs and to store model
+# checkpoints
 pretrained_models_volume = get_volume(config.modal_volume_pretrained_models)
 datasets_volume = get_volume(config.modal_volume_datasets)
 model_checkpoints_volume = get_volume(config.modal_volume_model_checkpoints)
 
+
 @modal_app.function(
-    image=get_docker_image(),
+    image=docker_image,
     gpu=config.modal_gpu_type,
     volumes={
         "/pretrained_models": pretrained_models_volume,
@@ -39,7 +40,6 @@ model_checkpoints_volume = get_volume(config.modal_volume_model_checkpoints)
     max_inputs=1,  # Ensure we get a fresh container on retry
 )
 def finetune(config: TrainingJobConfig):
-    
     # Initialize Weights & Biases for experiment tracking if enabled
     if config.wandb_enabled:
         print(f"Initializing WandB experiment {config.wandb_experiment_name}")
@@ -63,8 +63,10 @@ def finetune(config: TrainingJobConfig):
     # resume_from_checkpoint = False
 
     from .checkpoints import _get_or_create_path_to_model_checkpoints
+
     checkpoint_path = _get_or_create_path_to_model_checkpoints(
-        config.wandb_experiment_name)
+        config.wandb_experiment_name
+    )
 
     print("Preparing trainer...")
     trainer = prepare_trainer(
@@ -98,7 +100,7 @@ def finetune(config: TrainingJobConfig):
 
 @modal_app.local_entrypoint()
 def main(
-    model_name: str = 'unsloth/LFM2-350M',
+    model_name: str = "unsloth/LFM2-350M",
     learning_rate: float = 2e-4,
     max_steps: int = 10000,
     lora_r: int = 16,
@@ -107,11 +109,11 @@ def main(
     gradient_accumulation_steps: int = 1,
     warmup_ratio: float = 0.05,
     experiment_name: str = None,
-    invalidate_dataset_cache: bool = False
+    invalidate_dataset_cache: bool = False,
 ):
     # print(f'Invalidate dataset cache: {invalidate_dataset_cache}')
 
-    print('Creating the TrainingJobConfig for this run...')
+    print("Creating the TrainingJobConfig for this run...")
     config = TrainingJobConfig(
         model_name=model_name,
         learning_rate=learning_rate,
@@ -130,11 +132,12 @@ def main(
     print(f"Dataset: {config.dataset_name}")
     print(f"LoRA configuration: rank={config.lora_r}, alpha={config.lora_alpha}")
     print(
-        f"Effective batch size: {config.batch_size * config.gradient_accumulation_steps}"
+        f"Effective batch size: \
+            {config.batch_size * config.gradient_accumulation_steps}"
     )
     print(f"Training steps: {config.max_steps}")
 
     # Launch the training job on Modal infrastructure
     finetune.remote(config)
-    
+
     print(f"Training completed successfully: {config.wandb_experiment_name}")

@@ -1,12 +1,13 @@
-import chess
-import chess.pgn
+import glob
 import json
 import os
-import glob
-from typing import List, Dict, Any, Optional
-from tqdm import tqdm
-from datasets import Dataset
 from pathlib import Path
+from typing import Any
+
+import chess
+import chess.pgn
+from datasets import Dataset
+from tqdm import tqdm
 
 
 def count_games(pgn_file_path: str) -> int:
@@ -17,10 +18,12 @@ def count_games(pgn_file_path: str) -> int:
             game_count += 1
     return game_count
 
-def extract_game_data(pgn_file_path: str) -> List[Dict[str, Any]]:
+
+def extract_game_data(pgn_file_path: str) -> list[dict[str, Any]]:
     """
-    Parse PGN file and extract move sequences, game states, and valid moves for each position.
-    
+    Parse PGN file and extract move sequences, game states, and valid moves for each
+    position.
+
     Returns:
         List of dictionaries containing:
         - moves_uci: List of moves in UCI notation up to this position
@@ -31,7 +34,7 @@ def extract_game_data(pgn_file_path: str) -> List[Dict[str, Any]]:
     """
     extracted_data = []
     game_id = 0
-    
+
     total_games = count_games(pgn_file_path)
     print(f"Total games in PGN: {total_games}")
 
@@ -41,74 +44,79 @@ def extract_game_data(pgn_file_path: str) -> List[Dict[str, Any]]:
                 game = chess.pgn.read_game(pgn_file)
                 if game is None:
                     break
-                
+
                 board = chess.Board()
                 moves_uci = []
                 white_player = game.headers.get("White", "Unknown")
                 black_player = game.headers.get("Black", "Unknown")
-                
+
                 # Extract each move and corresponding game state
                 for move_number, move in enumerate(game.mainline_moves()):
                     # Get current state before applying move
                     game_state = board.fen()
                     valid_moves = [str(legal_move) for legal_move in board.legal_moves]
-                    
-                    # Determine which player is making the move (White moves on even numbers, Black on odd)
-                    current_player = white_player if move_number % 2 == 0 else black_player
-                    
+
+                    # Determine which player is making the move
+                    # White moves on even numbers, Black on odd
+                    current_player = (
+                        white_player if move_number % 2 == 0 else black_player
+                    )
+
                     # Create data point for this position
                     data_point = {
-                        'moves_uci': moves_uci.copy(),
-                        'last_5_moves_uci': moves_uci[-5:],
-                        'game_state': game_state,
-                        'valid_moves': valid_moves,
-                        'move_number': move_number,
-                        'game_id': game_id,
-                        'next_move': str(move),  # The actual move played
-                        'player_to_move': current_player
+                        "moves_uci": moves_uci.copy(),
+                        "last_5_moves_uci": moves_uci[-5:],
+                        "game_state": game_state,
+                        "valid_moves": valid_moves,
+                        "move_number": move_number,
+                        "game_id": game_id,
+                        "next_move": str(move),  # The actual move played
+                        "player_to_move": current_player,
                     }
                     extracted_data.append(data_point)
-                    
+
                     # Apply the move and add to move list
                     board.push(move)
                     moves_uci.append(str(move))
-                
+
                 game_id += 1
                 pbar.update(1)
-            
+
     return extracted_data
 
 
-def save_dataset(data: List[Dict[str, Any]], output_file: str):
+def save_dataset(data: list[dict[str, Any]], output_file: str):
     """Save extracted data to JSON file."""
-    with open(output_file, 'w') as f:
+    with open(output_file, "w") as f:
         json.dump(data, f, indent=2)
     print(f"Saved {len(data)} data points to {output_file}")
+
 
 def process_one_pgn_file(
     pgn_path: str,
     output_path: str,
 ):
     """
-    Extracts games from the given `pgn_path` and saves it into an `output_path` json file
+    Extracts games from the given `pgn_path` and saves it into an `output_path` json
+    file
     """
     print(f"Extracting game data from {pgn_path}")
     data = extract_game_data(pgn_path)
-    
+
     print(f"Extracted {len(data)} positions from games")
-    
+
     # Show sample data point
     if data:
         print("\nSample data point:")
         print(json.dumps(data[0], indent=2))
-    
+
     save_dataset(data, output_path)
 
 
 def generate_instruction_dataset(
-    raw_data_dir: Optional[str] = None,
-    processed_data_dir: Optional[str] = None,
-    hugging_face_dataset_name: Optional[str] = None,
+    raw_data_dir: str | None = None,
+    processed_data_dir: str | None = None,
+    hugging_face_dataset_name: str | None = None,
 ):
     """
     Process all PGN files in raw_data_dir, create processed JSON files,
@@ -124,53 +132,56 @@ def generate_instruction_dataset(
 
     # Ensure processed data directory exists
     os.makedirs(processed_data_dir, exist_ok=True)
-    
+
     # Find all PGN files in raw data directory
     pgn_files = glob.glob(os.path.join(raw_data_dir, "*.pgn"))
-    print(f"Found {len(pgn_files)} PGN files: {[os.path.basename(f) for f in pgn_files]}")
-    
+    print(
+        f"Found {len(pgn_files)} PGN files: {[os.path.basename(f) for f in pgn_files]}"
+    )
+
     # Process each PGN file
     processed_files = []
     for pgn_path in tqdm(pgn_files, desc="Processing PGN files"):
         filename = os.path.splitext(os.path.basename(pgn_path))[0]
         output_path = os.path.join(processed_data_dir, f"{filename}.json")
-        
+
         print(f"\nProcessing {os.path.basename(pgn_path)}...")
         process_one_pgn_file(pgn_path, output_path)
         processed_files.append(output_path)
 
         # TODO: remove this
         # break
-    
+
     # Load all processed data
     all_data = []
     for json_path in processed_files:
         print(f"Loading {os.path.basename(json_path)}...")
-        with open(json_path, 'r') as f:
+        with open(json_path) as f:
             data = json.load(f)
             all_data.extend(data)
-    
+
     print(f"\nTotal data points before filtering: {len(all_data)}")
-    
+
     # Filter to keep only positions where Magnus Carlsen is the player to move
-    carlsen_data = [point for point in all_data if "Carlsen" in point.get("player_to_move", "")]
+    carlsen_data = [
+        point for point in all_data if "Carlsen" in point.get("player_to_move", "")
+    ]
     print(f"Data points with Carlsen to move: {len(carlsen_data)}")
-    
+
     all_data = carlsen_data
-    
+
     # Create HuggingFace dataset
     dataset = Dataset.from_list(all_data)
     print(f"Created dataset with {len(dataset)} samples")
-    
+
     # Push to hub
     print(f"Pushing dataset to HuggingFace Hub: {hugging_face_dataset_name}")
     dataset.push_to_hub(hugging_face_dataset_name)
     print("Dataset successfully pushed to hub!")
 
+
 if __name__ == "__main__":
-    
     from fire import Fire
 
     # Example usage
     Fire(generate_instruction_dataset)
-

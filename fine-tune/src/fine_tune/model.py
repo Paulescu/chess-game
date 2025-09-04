@@ -1,8 +1,7 @@
-from typing import Tuple
-
 from .config import TrainingJobConfig
 
-def prepare_model(config: TrainingJobConfig) -> Tuple["Model", "Tokenizer"]:
+
+def prepare_model(config: TrainingJobConfig) -> tuple["Model", "Tokenizer"]:
     """
     Loads the model from HF using smart caching with Modal volumes
     and
@@ -23,9 +22,10 @@ def prepare_model(config: TrainingJobConfig) -> Tuple["Model", "Tokenizer"]:
         lora_target_modules=config.lora_target_modules,
         use_gradient_checkpointing=config.use_gradient_checkpointing,
         seed=config.seed,
-        use_rslora=config.use_rslora
+        use_rslora=config.use_rslora,
     )
     return model, tokenizer
+
 
 def load_pretrained_model(
     model_name: str,
@@ -49,6 +49,7 @@ def load_pretrained_model(
 
     return model, tokenizer
 
+
 def add_lora_adapters(
     model,
     lora_r: int,
@@ -58,7 +59,7 @@ def add_lora_adapters(
     lora_target_modules: list[str],
     use_gradient_checkpointing: str,
     seed: int,
-    use_rslora: bool, # Rank-stabilized LoRA
+    use_rslora: bool,  # Rank-stabilized LoRA
 ) -> "FastLanguageModel":
     """
     Adds LoRA adapters to the model for efficient finetuning.
@@ -72,11 +73,9 @@ def add_lora_adapters(
         target_modules=lora_target_modules,
         lora_alpha=lora_alpha,
         lora_dropout=lora_dropout,
-        bias=lora_bias, 
-        
+        bias=lora_bias,
         # What is this?
         use_gradient_checkpointing=use_gradient_checkpointing,
-        
         random_state=seed,
         use_rslora=use_rslora,
         loftq_config=None,  # LoFTQ quantization config

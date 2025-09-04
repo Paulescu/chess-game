@@ -1,5 +1,6 @@
 from pathlib import Path
 
+
 def check_for_existing_checkpoint(paths: dict):
     """
     Check if there's an existing checkpoint to resume training from.
@@ -20,16 +21,14 @@ def check_for_existing_checkpoint(paths: dict):
 
     return None
 
+
 def _get_or_create_path_to_model_checkpoints(
     wandb_experiment_name: str,
 ) -> Path:
     """
     Returns path to the cached dataset in a Modal volume.
     """
-    path = (
-        Path("/model_checkpoints") /
-        wandb_experiment_name.replace("/", "--")
-    )
+    path = Path("/model_checkpoints") / wandb_experiment_name.replace("/", "--")
 
     if not path.exists():
         path.mkdir(parents=True, exist_ok=True)
