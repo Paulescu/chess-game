@@ -1,4 +1,14 @@
-## Let's build a Chess game using LLMs running privately on your phone, computer or microwave (if that is your thing)
+<div align="center">
+
+# Let's build a Chess game using small and local Large Language Models 
+
+## *So you can play on your phone, computer or microwave (if that is your thing)*
+
+</div>
+
+<div align="center">
+<img src="media/game_play.gif" width="300" alt="Chess game gameplay">
+</div>
 
 ### Table of contents
 
@@ -12,7 +22,7 @@
 - [4. Evaluate LFM2-350M-MagnusInstruct on real game play](#4-evaluate-lfm2-350m-magnusinstruct-on-real-game-play)
 - [5. Bundle the model with the Leap Model Bundling CLI](#5-bundle-the-model-with-the-leap-model-bundling-cli)
 - [6. Embed the model into an iOS app with the Leap Edge SDK](#6-create-ios-app-with-lfm2-350m-magnusinstruct)
-
+- [Want to learn more Real World LLM engineering?](#want-to-learn-more-real-world-llm-engineering)
 
 ## What is this repo about?
 
@@ -261,9 +271,16 @@ The result is a `.bundle` file that contains the fine-tuned model and tokenizer,
 can be deployed on mobile devices (both Android and iOS) using the Leap Edge SDK.
 
 
-## 6. Embed the model into an iOS app with the Leap Edge SDK
+## 6. Embed the model into an iOS Chess app with the Leap Edge SDK
 
-To open the app you will need to have Xcode installed.
+But, what is the Leap Edge SDK?
+
+The [Leap Edge SDK](https://leap.liquid.ai/docs/edge-sdk/overview) is a collection of libraries and tools to help you deploy and run LLMs on mobile devices.
+
+With Leap we can embed the model bundle into the iOS app, which means we can run the model on the device without having to send the data to a remote server.
+
+Ok, enough talking. Let's open the app in Xcode.
+Yes, you need to have Xcode installed to follow these steps.
 
 ```sh
 cd ChessChat && make open
@@ -274,27 +291,26 @@ If you want to create this project from scratch, you can follow the steps below.
 1. Add the `LeapSDK`, `ChessKit` and `ChessboardKit` packages to the project.
 2. Create a `Resources` folder and add the model bundle `LFM2-350M-MagnusInstruct.bundle`.
 3. Create a `Models` folder and add the `Player.swift` file.
-4. Create a `Views` folder and add the `ContentView.swift` file.
+4. Create a `Views` folder and add the `ContentView.swift` and `Board.swift` files.
 
-You can find the app in the `ChessChat` directory.
-It is a simple app that loads the model and allows you to chat with it.
-It uses the `LeapSDK` for iOS to load the model and chat with it.
+The `ChessKit`([github here](https://github.com/aperechnev/ChessKit)) and `ChessboardKit`([github here](https://github.com/rohanrhu/ChessboardKit/)) packages are used to handle the chess logic and the chessboard UI.
 
+The `Player` model handles the LLM loading and inference logic.
 
-//You can find the app in the `ChessChat` directory.
-It is a simple app that loads the model and allows you to chat with it.
-It uses the `LeapSDK` for iOS to load the model and chat with it.
+The final product is a nice looking chess app you can run offline on your phone.
 
-First I decided to bootstrap a minimal chat app that loads the model and allows you to chat with it.
-For that I used the `LeapChatExample` from the `LeapSDK-Examples` repository.
-You can find it [here](https://leap.liquid.ai/docs/edge-sdk/ios/ios-quick-start-guide#complete-example)
+<div align="center">
+<img src="media/game_play.gif" width="300" alt="Chess game gameplay">
+</div>
 
-### Steps to create the app
+## Want to learn more Real World LLM engineering?
 
-- Create a new project with xcode.
-- Create a `Resources` folder and add the model bundle `LFM2-350M-MagnusInstruct.bundle`.
-- Add the `LeapSDK` package to the project as explained [here](LFM2-350M-MagnusInstruct).
+Subscribe for FREE to [The Real World ML newsletter](https://paulabartabajo.substack.com/).
 
+No BS.
+No spam.
+No fluff.
 
-ChessboardKit for a nice UI:
-https://github.com/rohanrhu/ChessboardKit/tree/main?tab=readme-ov-file#quick-start
+Just things I do at work that sometimes work, and sometimes don't.
+
+[👉 Subscribe here](https://paulabartabajo.substack.com/)
