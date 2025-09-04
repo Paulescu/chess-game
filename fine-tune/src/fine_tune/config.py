@@ -81,22 +81,3 @@ class TrainingJobConfig(BaseSettings):
             self.wandb_experiment_name = f"{model_short}-r{self.lora_r}-{timestamp}"
 
         return self
-
-
-class ModalConfig(BaseSettings):
-    """
-    Configuration for the Modal app
-    """
-
-    app_name: str = "finetune-chess-llm"
-    pretrained_models_volume: str = "pretrained_models"
-    datasets_volume: str = "datasets"
-    model_checkpoints_volume: str = "model_checkpoints"
-    gpu_type: str = "L40S"
-    timeout_hours: int = 6
-    max_retries: int = 3
-
-
-# training_job_config = TrainingJobConfig()
-# modal_app_config = ModalConfig()
-# print(training_job_config.__dict__)
