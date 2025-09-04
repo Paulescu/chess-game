@@ -8,7 +8,7 @@ class LLMPlayer {
     var isReady: Bool = false
     var error: String?
     private var modelRunner: ModelRunner?
-    private var conversation: Conversation?
+//    private var conversation: Conversation?
     
     func setupLLM() async {
         do {
@@ -21,7 +21,7 @@ class LLMPlayer {
             }
 
             modelRunner = try await Leap.load(url: modelURL)
-            conversation = Conversation(modelRunner: modelRunner!, history: [])
+//            conversation = Conversation(modelRunner: modelRunner!, history: [])
             isReady = true
 
         } catch {
@@ -31,9 +31,10 @@ class LLMPlayer {
     }
     
     func getNextMove(game: Game) async throws -> String {
-        guard let conversation = conversation else {
-            throw ChessError.modelNotInitialized
-        }
+//        guard let conversation = conversation else {
+//            throw ChessError.modelNotInitialized
+//        }
+        let conversation = Conversation(modelRunner: modelRunner!, history: [])
         
         let gameState = FenSerialization.default.serialize(position: game.position)
         let last5MovesUci = game.movesHistory.suffix(5).map(\.description)
